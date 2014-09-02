@@ -1,0 +1,10 @@
+target/*
+*.swp
+.classpath
+.project
+.settings/*
+.DS_Store
+*.tmp
+nbactions.xml
+run.sh
+*.log
