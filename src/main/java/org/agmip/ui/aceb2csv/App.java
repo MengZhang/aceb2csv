@@ -41,36 +41,42 @@ public class App {
         LOG.info("Translating file: {}", acebFile);
         LOG.info("Output directory: {}", outputDir);
 
-        // Load the ACE Binay file into memory and transform it to old JSON format and send it down the line.
-        LOG.info("Loading the ACEB file...");
-        AceDataset ace = AceParser.parseACEB(new File(acebFile));
-        ace.linkDataset();
         HashMap data = new HashMap();
-        ArrayList<HashMap> arr;
-        // Experiments
-        arr = new ArrayList();
-        for (AceExperiment exp : ace.getExperiments()) {
-            arr.add(JSONAdapter.fromJSON(new String(exp.rebuildComponent())));
+        if (acebFile.toLowerCase().endsWith(".aceb")) {
+            // Load the ACE Binay file into memory and transform it to old JSON format and send it down the line.
+            LOG.info("Loading the Data file...");
+            AceDataset ace = AceParser.parseACEB(new File(acebFile));
+            ace.linkDataset();
+            
+            ArrayList<HashMap> arr;
+            // Experiments
+            arr = new ArrayList();
+            for (AceExperiment exp : ace.getExperiments()) {
+                arr.add(JSONAdapter.fromJSON(new String(exp.rebuildComponent())));
+            }
+            if (!arr.isEmpty()) {
+                data.put("experiments", arr);
+            }
+            // Soils
+            arr = new ArrayList();
+            for (AceSoil soil : ace.getSoils()) {
+                arr.add(JSONAdapter.fromJSON(new String(soil.rebuildComponent())));
+            }
+            if (!arr.isEmpty()) {
+                data.put("soils", arr);
+            }
+            // Weathers
+            arr = new ArrayList();
+            for (AceWeather wth : ace.getWeathers()) {
+                arr.add(JSONAdapter.fromJSON(new String(wth.rebuildComponent())));
+            }
+            if (!arr.isEmpty()) {
+                data.put("weathers", arr);
+            }
+        } else {
+            data = JSONAdapter.fromJSONFile(acebFile);
         }
-        if (!arr.isEmpty()) {
-            data.put("experiments", arr);
-        }
-        // Soils
-        arr = new ArrayList();
-        for (AceSoil soil : ace.getSoils()) {
-            arr.add(JSONAdapter.fromJSON(new String(soil.rebuildComponent())));
-        }
-        if (!arr.isEmpty()) {
-            data.put("soils", arr);
-        }
-        // Weathers
-        arr = new ArrayList();
-        for (AceWeather wth : ace.getWeathers()) {
-            arr.add(JSONAdapter.fromJSON(new String(wth.rebuildComponent())));
-        }
-        if (!arr.isEmpty()) {
-            data.put("weathers", arr);
-        }
+        
 
         // Translate the data to csv file
         LOG.info("Translating the data...");
